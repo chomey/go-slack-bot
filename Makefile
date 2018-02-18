@@ -61,9 +61,6 @@ local_build:
 local_test:
 	go test `go list ./... | grep -v /vendor/`
 
-# this is the command docker jenkins uses to build your pipeline
-dockerjenkins_build: local_test local_build
-
 ####### Other rules #######
 image: build
 	docker build -t $(IMAGE_NAME) . && docker tag $(IMAGE_NAME) "go_slack_bot:localdev"
