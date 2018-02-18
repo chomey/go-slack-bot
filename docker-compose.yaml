@@ -3,7 +3,6 @@ go-slack-bot:
   ports:
     - "1102:1102"
   volumes:
-    - ./development-env.json:/app/go-slack-bot-env.json
     - ./logs/:/var/log/
   environment:
     - RC_HOSTNAME=localhost
