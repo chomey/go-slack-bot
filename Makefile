@@ -22,13 +22,13 @@ RC_HOSTNAME ?= localhost
 
 ####### Rules for development, default to run build in container, no dependency on local dev environment setup #######
 # First rule, as the default rule. Don't move it.
-build: version start_build_container container_test container_build image stop_build_container
+build: version start_build_container container_test container_build image clean
 
 test: start_build_container container_test stop_build_container
 
 run:
 	docker-compose rm -f 2>/dev/null || true
-	VERSION=$(IMAGE_TAG) RC_HOSTNAME=$(RC_HOSTNAME) RC_PRIVATE_KEY=$(RC_PRIVATE_KEY) docker-compose up -p $(SERVICE_NAME)
+	VERSION=$(IMAGE_TAG) RC_HOSTNAME=$(RC_HOSTNAME) RC_PRIVATE_KEY=$(RC_PRIVATE_KEY) docker-compose up
 
 ####### Rules for local build container builds #######
 pull_build_container:
@@ -75,4 +75,4 @@ clean:
 	docker rm -f $(BUILD_CONTAINER_NAME) 2> /dev/null || true
 	rm bin/* || true
 
-.PHONY: start_build_container container build run local_run local_build local_test dockerjenkins_build test version image_tag clean container_%
+.PHONY: start_build_container container build run local_run local_build local_test test version image_tag clean container_%
