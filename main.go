@@ -5,10 +5,10 @@ import (
 	"github.com/op/go-logging"
 	"io/ioutil"
 	"encoding/json"
-	"github.com/chomey/go-slack-bot/config"
+	"github.com/chomey/go_slack_bot/config"
 )
 
-var log = logging.MustGetLogger("go-slack-bot")
+var log = logging.MustGetLogger("go_slack_bot")
 
 func main() {
 	log.Info("=====")
@@ -21,7 +21,7 @@ func main() {
 	var config config.Config
 	json.Unmarshal(data, &config)
 
-	fmt.Println(fmt.Sprintf("Hello %s.", config.Name))
+	fmt.Printf("Hello %s.\n", config.Name)
 }
 
 func check(e error) {

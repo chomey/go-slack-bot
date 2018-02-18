@@ -26,11 +26,11 @@ elif [[ 'patch' == "$VERSION_TYPE" ]]
 fi
 
 NEW_VERSION=$MAJOR.$MINOR.$PATCH
-
-GIT_TAG="git tag -a $NEW_VERSION -m '$VERSION_TYPE"
-GIT_PUSH="git push --tags"
-
-echo `$GIT_TAG`
-echo `$GIT_PUSH`
+#
+#GIT_TAG="git tag -a $NEW_VERSION -m '$VERSION_TYPE"
+#GIT_PUSH="git push --tags"
+#
+#echo `$GIT_TAG`
+#echo `$GIT_PUSH`
 
 echo $NEW_VERSION > VERSION

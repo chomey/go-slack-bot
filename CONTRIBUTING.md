@@ -8,7 +8,7 @@ You can contribute in many ways:
 
 ### Report Bugs
 
-Report bugs at https://github.com/chomey/go-slack-bot/issues.
+Report bugs at https://github.com/chomey/go_slack_bot/issues.
 
 If you are reporting a bug, please include:
 
@@ -28,13 +28,13 @@ is open to whoever wants to implement it.
 
 ### Write Documentation
 
-go-slack-bot could always use more documentation, whether as part of the
-official go-slack-bot docs, in docstrings, or even on the web in blog posts,
+go_slack_bot could always use more documentation, whether as part of the
+official go_slack_bot docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 ### Submit Feedback
 
-The best way to send feedback is to file an issue at https://github.com/chomey/go-slack-bot/issues.
+The best way to send feedback is to file an issue at https://github.com/chomey/go_slack_bot/issues.
 
 If you are proposing a feature:
 
@@ -45,12 +45,12 @@ If you are proposing a feature:
 
 ## Get Started!
 
-Ready to contribute? Here's how to set up `go-slack-bot` for local development.
+Ready to contribute? Here's how to set up `go_slack_bot` for local development.
 
-1. Fork the `go-slack-bot` repo on GitHub.
+1. Fork the `go_slack_bot` repo on GitHub.
 2. Clone your fork locally::
 
-	$ git clone git@github.com:your_name_here/go-slack-bot.git
+	$ git clone git@github.com:your_name_here/go_slack_bot.git
 
 3. Create a branch for local development::
 

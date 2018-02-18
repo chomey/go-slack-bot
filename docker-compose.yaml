@@ -1,5 +1,5 @@
-go-slack-bot:
-  image: chomey/go-slack-bot:dev
+go_slack_bot:
+  image: chomey/go_slack_bot:dev
   ports:
     - "1102:1102"
   volumes:

@@ -1,4 +1,4 @@
-# go-slack-bot
+# go_slack_bot
 
 Golang Slack Bot
 
@@ -10,7 +10,7 @@ Running it then should be as simple as:
 
 ```console
 $ make
-$ ./bin/go-slack-bot
+$ ./bin/go_slack_bot
 ```
 
 ### Testing
