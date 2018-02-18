@@ -50,23 +50,23 @@ Ready to contribute? Here's how to set up `go-slack-bot` for local development.
 1. Fork the `go-slack-bot` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/go-slack-bot.git
+	$ git clone git@github.com:your_name_here/go-slack-bot.git
 
 3. Create a branch for local development::
 
-    $ git checkout -b name-of-your-bugfix-or-feature
+	$ git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally.
 
 4. When you're done making changes, check that your changes pass the tests::
 
-    $ make test
+	$ make test
 
 6. Commit your changes and push your branch to GitHub::
 
-    $ git add .
-    $ git commit -m "Your detailed description of your changes."
-    $ git push origin name-of-your-bugfix-or-feature
+	$ git add .
+	$ git commit -m "Your detailed description of your changes."
+	$ git push origin name-of-your-bugfix-or-feature
 
 7. Submit a pull request through the GitHub website.
 

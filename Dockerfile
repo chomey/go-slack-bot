@@ -1,37 +1,13 @@
-# Build Stage
-FROM lacion/docker-alpine:gobuildimage AS build-stage
+FROM alpine:3.1
+MAINTAINER Jordan Foo <foo.jordan@gmail.com>
 
-LABEL app="build-go-slack-bot"
-LABEL REPO="https://github.com/chomey/go-slack-bot"
+RUN apk add --update ca-certificates \
+    && rm -rf /var/cache/apk/*
 
-ENV GOROOT=/usr/lib/go \
-    GOPATH=/gopath \
-    GOBIN=/gopath/bin \
-    PROJPATH=/gopath/src/github.com/chomey/go-slack-bot
+ADD bin/go_slack_bot_linux_amd64 /app/service
+ADD service/config.json /app/
+WORKDIR /app
 
-# Because of https://github.com/docker/docker/issues/14914
-ENV PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+ENTRYPOINT ["/app/service"]
 
-ADD . /gopath/src/github.com/chomey/go-slack-bot
-WORKDIR /gopath/src/github.com/chomey/go-slack-bot
-
-RUN make build-alpine
-
-# Final Stage
-FROM lacion/docker-alpine:latest
-
-ARG GIT_COMMIT
-ARG VERSION
-LABEL REPO="https://github.com/chomey/go-slack-bot"
-LABEL GIT_COMMIT=$GIT_COMMIT
-LABEL VERSION=$VERSION
-
-# Because of https://github.com/docker/docker/issues/14914
-ENV PATH=$PATH:/opt/go-slack-bot/bin
-
-WORKDIR /opt/go-slack-bot/bin
-
-COPY --from=build-stage /gopath/src/github.com/chomey/go-slack-bot/bin/go-slack-bot /opt/go-slack-bot/bin/
-RUN chmod +x /opt/go-slack-bot/bin/go-slack-bot
-
-CMD /opt/go-slack-bot/bin/go-slack-bot
+EXPOSE 1102

@@ -1,0 +1,11 @@
+{
+  "config": {
+    "metric_collector": {
+      "location": ""
+    },
+    "http_client": {
+      "timeout": "5s",
+      "proxy": "HOST"
+    }
+  }
+}

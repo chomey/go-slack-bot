@@ -1,60 +1,29 @@
-.PHONY: build build-alpine clean test help default
-
-BIN_NAME=go-slack-bot
-
-VERSION := $(shell grep "const Version " version.go | sed -E 's/.*"(.+)"$$/\1/')
-GIT_COMMIT=$(shell git rev-parse HEAD)
-GIT_DIRTY=$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
-IMAGE_NAME := "chomey/go-slack-bot"
-
-default: test
-
-help:
-	@echo 'Management commands for go-slack-bot:'
-	@echo
-	@echo 'Usage:'
-	@echo '    make build           Compile the project.'
-	@echo '    make get-deps        runs glide install, mostly used for ci.'
-	@echo '    make build-alpine    Compile optimized for alpine linux.'
-	@echo '    make package         Build final docker image with just the go binary inside'
-	@echo '    make tag             Tag image created by package with latest, git commit and version'
-	@echo '    make test            Run tests on a compiled project.'
-	@echo '    make push            Push tagged images to registry'
-	@echo '    make clean           Clean the directory tree.'
-	@echo
+VERSION := $(shell cat VERSION)+$(shell git log -1 --pretty=format:%h)
+IMAGE_TAG = $(shell echo $(VERSION) | sed 's|[+:]|-|g')
+SERVICE_NAME := go_slack_bot
+IMAGE_NAME := chomey/$(SERVICE_NAME):$(IMAGE_TAG)
+RC_HOSTNAME ?= localhost
 
 build:
-	@echo "building ${BIN_NAME} ${VERSION}"
-	@echo "GOPATH=${GOPATH}"
-	go build -ldflags "-X main.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X main.VersionPrerelease=DEV" -o bin/${BIN_NAME}
+#	bash -c "CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/go_slack_bot_darwin_amd64"
+#	bash -c "CGO_ENABLED=0 GOARCH=386 GOOS=linux go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/go_slack_bot_linux_386"
+	bash -c "CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/go_slack_bot_linux_amd64"
+#	bash -c "CGO_ENABLED=0 GOARCH=386 GOOS=windows go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/go_slack_bot_windows_386"
+#	bash -c "CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/go_slack_bot_windows_amd64"
+	docker build -t "chomey/go-slack-bot:dev" .
 
-get-deps:
-	glide install
+run:
+	docker-compose rm -f 2>/dev/null || true
+	VERSION=$(IMAGE_TAG) RC_HOSTNAME=$(RC_HOSTNAME) RC_PRIVATE_KEY=$(RC_PRIVATE_KEY) docker-compose up
 
-build-alpine:
-	@echo "building ${BIN_NAME} ${VERSION}"
-	@echo "GOPATH=${GOPATH}"
-	go build -ldflags '-w -linkmode external -extldflags "-static" -X main.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X main.VersionPrerelease=VersionPrerelease=RC' -o bin/${BIN_NAME}
+local_test:
+	go test `go list ./... | grep -v /vendor/`
 
-package:
-	@echo "building image ${BIN_NAME} ${VERSION} $(GIT_COMMIT)"
-	docker build --build-arg VERSION=${VERSION} --build-arg GIT_COMMIT=$(GIT_COMMIT) -t $(IMAGE_NAME):local .
-
-tag: 
-	@echo "Tagging: latest ${VERSION} $(GIT_COMMIT)"
-	docker tag $(IMAGE_NAME):local $(IMAGE_NAME):$(GIT_COMMIT)
-	docker tag $(IMAGE_NAME):local $(IMAGE_NAME):${VERSION}
-	docker tag $(IMAGE_NAME):local $(IMAGE_NAME):latest
-
-push: tag
-	@echo "Pushing docker image to registry: latest ${VERSION} $(GIT_COMMIT)"
-	docker push $(IMAGE_NAME):$(GIT_COMMIT)
-	docker push $(IMAGE_NAME):${VERSION}
-	docker push $(IMAGE_NAME):latest
-
+image: build
+	docker build -t $(IMAGE_NAME) . && docker tag $(IMAGE_NAME) "go-slack-bot:localdev"
 clean:
-	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
+	docker rm -f $(BUILD_CONTAINER_NAME) 2> /dev/null || true
+	rm bin/* || true
 
-test:
-	go test $(glide nv)
+.PHONY: build run local_run build clean container_
 
