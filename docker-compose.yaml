@@ -1,7 +1,7 @@
 go_slack_bot:
-  image: chomey/go_slack_bot:dev
+  image: chomey/go_slack_bot:localdev
   ports:
-    - "1102:1102"
+    - "9090:9090"
   volumes:
     - ./logs/:/var/log/
   environment:

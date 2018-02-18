@@ -11,4 +11,4 @@ WORKDIR /app
 
 ENTRYPOINT ["/app/service"]
 
-EXPOSE 1102
+EXPOSE 9090

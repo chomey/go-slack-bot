@@ -14,7 +14,7 @@ IMAGE_NAME := chomey/go_slack_bot:$(IMAGE_TAG)
 BUILD_CONTAINER_IMAGE := chomey/go-build-slave:latest
 BUILD_CONTAINER_NAME := $(SERVICE_NAME)_builder
 
-SERVICE_PATH_IN_CONTAINER := /go/src/github.com/chomey/go_slack_bot
+SERVICE_PATH_IN_CONTAINER := /go/src/github.com/chomey/go-slack-bot
 
 # Replace this with your docker-machine ip if running in docker machine, or set this when running like
 # RC_HOSTNAME=192.168.X.Y make run
@@ -22,13 +22,13 @@ RC_HOSTNAME ?= localhost
 
 ####### Rules for development, default to run build in container, no dependency on local dev environment setup #######
 # First rule, as the default rule. Don't move it.
-build: version stop_build_container start_build_container container_test container_build image
+build: version start_build_container container_test container_build image stop_build_container
 
-test: start_build_container container_test
+test: start_build_container container_test stop_build_container
 
 run:
 	docker-compose rm -f 2>/dev/null || true
-	VERSION=$(IMAGE_TAG) RC_HOSTNAME=$(RC_HOSTNAME) RC_PRIVATE_KEY=$(RC_PRIVATE_KEY) docker-compose up
+	VERSION=$(IMAGE_TAG) RC_HOSTNAME=$(RC_HOSTNAME) RC_PRIVATE_KEY=$(RC_PRIVATE_KEY) docker-compose up -p $(SERVICE_NAME)
 
 ####### Rules for local build container builds #######
 pull_build_container:
@@ -51,19 +51,19 @@ local_run: local_build
 	bin/$(SERVICE_NAME) service/config.json
 
 local_build:
-#	bash -c "CGO_ENABLED=0 GOARCH=386 GOOS=darwin go build -ldflags '-X github.com/chomey/go_slack_bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_darwin_386"
-#	bash -c "CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -ldflags '-X github.com/chomey/go_slack_bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_darwin_amd64"
-#	bash -c "CGO_ENABLED=0 GOARCH=386 GOOS=linux go build -ldflags '-X github.com/chomey/go_slack_bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_linux_386"
-	bash -c "CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags '-X github.com/chomey/go_slack_bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_linux_amd64"
-#	bash -c "CGO_ENABLED=0 GOARCH=386 GOOS=windows go build -ldflags '-X github.com/chomey/go_slack_bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_windows_386"
-#	bash -c "CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -ldflags '-X github.com/chomey/go_slack_bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_windows_amd64"
+#	bash -c "CGO_ENABLED=0 GOARCH=386 GOOS=darwin go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_darwin_386"
+#	bash -c "CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_darwin_amd64"
+#	bash -c "CGO_ENABLED=0 GOARCH=386 GOOS=linux go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_linux_386"
+	bash -c "CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_linux_amd64"
+#	bash -c "CGO_ENABLED=0 GOARCH=386 GOOS=windows go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_windows_386"
+#	bash -c "CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -ldflags '-X github.com/chomey/go-slack-bot/service.VERSION=$(VERSION)' -o bin/$(SERVICE_NAME)_windows_amd64"
 
 local_test:
 	go test `go list ./... | grep -v /vendor/`
 
 ####### Other rules #######
-image: build
-	docker build -t $(IMAGE_NAME) . && docker tag $(IMAGE_NAME) "go_slack_bot:localdev"
+image:
+	docker build -t $(IMAGE_NAME) . && docker tag $(IMAGE_NAME) "chomey/go_slack_bot:localdev"
 
 version:
 	@echo $(VERSION)
