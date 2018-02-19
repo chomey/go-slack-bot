@@ -5,10 +5,12 @@ import (
 	"github.com/op/go-logging"
 	"io/ioutil"
 	"encoding/json"
-	"github.com/chomey/go-slack-bot/config"
 	"net/http"
 	"strings"
+	"github.com/chomey/go-slack-bot/config"
 )
+
+var Config config.Config
 
 var log = logging.MustGetLogger("go_slack_bot")
 
@@ -23,21 +25,28 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("key:", k)
 		fmt.Println("val:", strings.Join(v, ""))
 	}
-	data, err := ioutil.ReadFile("config.json")
-	check(err)
-
-	var Config config.Config
-	json.Unmarshal(data, &Config)
 
 	fmt.Fprintf(w, "Hello astaxie and %s!", Config.Name) // send data to client side
 }
 
 func main() {
-	http.HandleFunc("/", sayhelloName)       // set router
-	err := http.ListenAndServe(":9090", nil) // set listen port
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
+	data, err := ioutil.ReadFile("config.json")
+	check(err)
+
+	err = json.Unmarshal(data, &Config)
+	check(err)
+
+	fmt.Printf("Loading config: %#v\n", Config)
+
+	err = registerHandlers()
+	check(err)
+}
+
+func registerHandlers() error {
+	http.HandleFunc("/", sayhelloName)
+
+	fmt.Printf("Now listening on http://localhost:%d\n", Config.Port)
+	return http.ListenAndServe(fmt.Sprintf(":%d", Config.Port), nil)
 }
 
 func check(e error) {
