@@ -1,6 +1,11 @@
 package config
 
 type Config struct {
-	Name string `json:"name"`
-	Port int    `json:"port"`
+	// Server Config
+	Port int `json:"port"`
+
+	// Slack Config
+
+	//SlackToken: Get this from https://api.slack.com/apps/<myapp>/install-on-team?
+	SlackToken string `json:"slackToken"`
 }
