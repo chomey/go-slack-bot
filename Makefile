@@ -3,7 +3,6 @@ HASH := $(shell echo `git log -1 --pretty=format:%h`)
 VERSION := $(VER)+$(HASH)
 
 IMAGE_TAG = $(shell echo $(VERSION) | sed 's|[+:]|-|g')
-
 ## service info
 SERVICE_NAME := go_slack_bot
 # Replace '+' with '-' in the semver because docker does support tags with '+'
@@ -28,7 +27,7 @@ test: start_build_container container_test stop_build_container
 
 run:
 	docker-compose rm -f 2>/dev/null || true
-	VERSION=$(IMAGE_TAG) RC_HOSTNAME=$(RC_HOSTNAME) RC_PRIVATE_KEY=$(RC_PRIVATE_KEY) docker-compose up
+	VERSION=$(IMAGE_TAG) RC_HOSTNAME=$(RC_HOSTNAME) RC_PRIVATE_KEY=$(RC_PRIVATE_KEY) SLACK_TOKEN=$(SLACK_TOKEN) SLACK_BOT_TOKEN=$(SLACK_BOT_TOKEN) docker-compose up
 
 ####### Rules for local build container builds #######
 pull_build_container:

@@ -5,8 +5,8 @@ RUN apk add --update ca-certificates \
     && rm -rf /var/cache/apk/*
 
 ADD bin/go_slack_bot_linux_amd64 /app/service
-ADD service/ /app/
-ADD config /app/config
+ADD slack /app/
+
 WORKDIR /app
 
 ENTRYPOINT ["/app/service"]

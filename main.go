@@ -4,10 +4,14 @@ import (
 	"fmt"
 	"github.com/op/go-logging"
 	"net/http"
-	"github.com/chomey/go-slack-bot/config"
 	"io/ioutil"
 	"encoding/json"
-	"github.com/chomey/go-slack-bot/service"
+	"github.com/chomey/go-slack-bot/slack"
+	"github.com/chomey/go-slack-bot/config"
+	"github.com/gorilla/mux"
+	"os"
+	"errors"
+	"github.com/chomey/go-slack-bot/errorUtils"
 )
 
 type RequestHandler interface {
@@ -15,40 +19,57 @@ type RequestHandler interface {
 }
 
 var log = logging.MustGetLogger("go_slack_bot")
-var Config config.Config
-var Service *service.Service
+var Slack *slack.Slack
 var requestHandlers = make(map[string]RequestHandler)
+var variables = make(map[string]string)
 
 func main() {
-	loadConfig()
+	Config := loadConfig()
+	fmt.Printf("Loading Config: %#v\n", Config)
 
-	Service = service.New()
+	loadEnvironmentVariables()
+	fmt.Printf("%#v", variables)
 
-	fmt.Printf("Loading config: %#v\n", Config)
+	Slack = slack.New(variables)
+	Slack.Start(Config)
 
-	//Register new handlers here
-	requestHandlers["/"] = Service
-	requestHandlers["/slack"] = Service.Slack
-
-	for path, handler := range requestHandlers {
-		http.HandleFunc(path, handler.HandleRequest)
-	}
-
+	m := setupMuxRouter()
+	http.Handle("/", m)
 	log.Infof("Now listening on http://localhost:%d\n", Config.Port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", Config.Port), nil)
-	check(err)
+	errorUtils.Check(err)
 }
 
-func loadConfig() {
-	data, err := ioutil.ReadFile("config.json")
-	check(err)
-
-	err = json.Unmarshal(data, &Config)
-	check(err)
-}
-
-func check(e error) {
-	if e != nil {
-		panic(e)
+func setupMuxRouter() *mux.Router {
+	m := mux.NewRouter()
+	//Register new handlers here
+	requestHandlers["/slack"] = Slack
+	requestHandlers["/"] = Slack
+	for path, handler := range requestHandlers {
+		m.PathPrefix(path).HandlerFunc(handler.HandleRequest)
 	}
+	return m
+}
+
+func loadConfig() config.Config {
+	data, err := ioutil.ReadFile("config.json")
+	errorUtils.Check(err)
+
+	Config := new(config.Config)
+	err = json.Unmarshal(data, &Config)
+	errorUtils.Check(err)
+	return *Config
+}
+
+func loadEnvironmentVariables() {
+	checkIfSet(slack.Token)
+	checkIfSet(slack.BotToken)
+}
+
+func checkIfSet(environmentVariable string) {
+	ev := os.Getenv(environmentVariable)
+	if ev == "" {
+		errorUtils.Check(errors.New(fmt.Sprintf("Environment variable '%s' is requried", environmentVariable)))
+	}
+	variables[environmentVariable] = ev
 }

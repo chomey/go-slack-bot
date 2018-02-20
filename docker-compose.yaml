@@ -6,3 +6,5 @@ go_slack_bot:
     - ./logs/:/var/log/
   environment:
     - RC_HOSTNAME=localhost
+    - SLACK_TOKEN=$SLACK_TOKEN
+    - SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN
